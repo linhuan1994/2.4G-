@@ -12,9 +12,9 @@ import java.io.OutputStream;
 import java.security.InvalidParameterException;
 
 import com.zokin.common.Application;
+import com.zokin.common.LogInfo;
 
 import android.app.Activity;
-import android.util.Log;
 import android_serialport_api.SerialPort;
 public class Zokin {
 
@@ -43,6 +43,8 @@ public class Zokin {
 			mSerialPort = mApplication.getSerialPort();
 			mOutputStream = mSerialPort.getOutputStream();
 			mInputStream = mSerialPort.getInputStream();
+			LogInfo.LogI("zokin串口打开");
+			
 		} catch (SecurityException e) {
 		} catch (IOException e) {
 		} catch (InvalidParameterException e) {
@@ -54,7 +56,7 @@ public class Zokin {
 			mInputStream.close();
 			mOutputStream.close();
 			mApplication.closeSerialPort();
-			Log.i("gxLin", "串口关闭");
+			LogInfo.LogI("zokin串口关闭");
 		} catch (Exception e) {
 		}
 		mSerialPort = null;

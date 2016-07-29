@@ -18,8 +18,8 @@ import com.zokin.common.Common;
 
 public class ReadCard {
 
-	private OutputStream mOutputStream;// TODO打开再关？？
-	private InputStream mInputStream;
+	protected OutputStream mOutputStream;// TODO打开再关？？
+	protected InputStream mInputStream;
 
 	private int BuffSize = 16000;
 	private byte[] RecBuff = new byte[BuffSize];
