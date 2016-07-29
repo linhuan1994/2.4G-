@@ -9,15 +9,16 @@ package com.zokin.rfid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.HashSet;
 import java.util.LinkedList;
+
 import android.util.Log;
-import com.lin.readdata.BytesUtil;
+
+import com.zokin.common.BytesUtil;
 import com.zokin.common.Common;
 
 public class ReadCard {
 
-	private OutputStream mOutputStream;//TODO打开再关？？
+	private OutputStream mOutputStream;// TODO打开再关？？
 	private InputStream mInputStream;
 
 	private int BuffSize = 16000;
@@ -30,17 +31,17 @@ public class ReadCard {
 	private int PackMaxSize = 64;
 	private byte[] PcMsgPack = new byte[PackMaxSize];
 	private int SizeOfPcMsgPack = 0;
-	LinkedList<String> tagIdList = new LinkedList<String>();
-	HashSet<String> dataSet = new HashSet<String>();
-	int dataNum = 0;// 卡数量
+	private LinkedList<String> tagIdList = new LinkedList<String>();
+	//private HashSet<String> dataSet = new HashSet<String>();
+	//private int dataNum = 0;// 卡数量
 
 	/**
 	 * @param功能：构造函数
 	 * @param参数：String
 	 */
-	public ReadCard(InputStream input,OutputStream output) {
-		mInputStream=input;
-		mOutputStream=output;
+	public ReadCard(InputStream input, OutputStream output) {
+		mInputStream = input;
+		mOutputStream = output;
 		ReadCard.start();
 	}
 
@@ -66,6 +67,12 @@ public class ReadCard {
 		sendSerialPort(Common.Stop_Inv);// Attention ：多发几个，防止接收不到
 		sendSerialPort(Common.Stop_Inv);
 		sendSerialPort(Common.Stop_Inv);
+	}
+
+	public boolean cleanCardId() {
+		
+		this.tagIdList.removeAll(tagIdList);
+		return true;
 	}
 
 	/*

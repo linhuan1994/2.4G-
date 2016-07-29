@@ -11,12 +11,11 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.security.InvalidParameterException;
 
+import com.zokin.common.Application;
+
 import android.app.Activity;
 import android.util.Log;
 import android_serialport_api.SerialPort;
-
-import com.lin.readdata.Application;
-
 public class Zokin {
 
 	public ReadCard readCard;

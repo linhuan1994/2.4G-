@@ -1,7 +1,7 @@
 package com.zokin.lin.main;
 import java.util.LinkedList;
 
-import com.lin.readdata.ReadCard;
+import com.zokin.rfid.Zokin;
 
 import android.os.Bundle;
 import android.app.Activity;
@@ -15,7 +15,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	
 	private TextView messageView;
 	private Button readBn, submitBn, cleanBn;
-	ReadCard readCard;
+	Zokin zokin;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -27,8 +27,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		readBn.setOnClickListener(this);
 		submitBn.setOnClickListener(this);
 		cleanBn.setOnClickListener(this);
-	     readCard=new ReadCard(MainActivity.this);
-	    
+	    zokin=new Zokin(MainActivity.this);  
 	}
 
 	@Override
@@ -43,20 +42,20 @@ public class MainActivity extends Activity implements OnClickListener {
 		// TODO Auto-generated method stub
 	 switch (v.getId()) {
 	case R.id.readBn:
-		readCard.startRead();
+		zokin.readCard.startRead();
 		break;
 	case R.id.submitBn:
 		messageView.setText("");
 		LinkedList<String> mesString=new LinkedList<String>();
 		
-		mesString=readCard.getCardId();
+		mesString=zokin.readCard.getCardId();
 		for (int i = 0; i < mesString.size(); i++)   {
 				messageView.append( mesString.get(i)
 						+ "\n");
 			}
 		break;
 	case R.id.cleanBn:
-		readCard.stopRead();
+		zokin.readCard.stopRead();
 		break;
 	default:
 		break;
