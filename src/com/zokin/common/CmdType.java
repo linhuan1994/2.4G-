@@ -12,9 +12,6 @@ public class CmdType {
 	//上传卡号请求
 	public static final byte UPLOAD_CARD_REQ=(byte)0x03;
 	//上传卡号响应
-	public static final byte UPLOAD_CARD_RES=(byte)0x83;
-	
-	
-	
+	public static final byte UPLOAD_CARD_RES=(byte)0x83;		
 
 }
