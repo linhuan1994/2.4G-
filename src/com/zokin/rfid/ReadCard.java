@@ -92,6 +92,7 @@ public class ReadCard {
 						Log.w("gxLin", "读卡线程mInputStream为NULL");
 						return;
 					}
+					else {
 					size = mInputStream.read(BUFFER);// 读取缓存区
 					if (Math.abs(inpt - outpt) + size >= 8000) {
 
@@ -209,13 +210,14 @@ public class ReadCard {
 
 						}
 					}
+					}
 				} catch (IOException e1) {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 
 				try {
-					Thread.sleep(500);
+					Thread.sleep(100);
 				} catch (Exception e) {
 
 				}

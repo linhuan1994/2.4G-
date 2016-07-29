@@ -27,7 +27,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		readBn.setOnClickListener(this);
 		submitBn.setOnClickListener(this);
 		cleanBn.setOnClickListener(this);
-	    zokin=new Zokin(MainActivity.this);  
+	    zokin=new Zokin(MainActivity.this);
+		
 	}
 
 	@Override
@@ -43,6 +44,7 @@ public class MainActivity extends Activity implements OnClickListener {
 	 switch (v.getId()) {
 	case R.id.readBn:
 		zokin.readCard.startRead();
+		
 		break;
 	case R.id.submitBn:
 		messageView.setText("");

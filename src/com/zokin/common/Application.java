@@ -66,7 +66,11 @@ public class Application extends android.app.Application {
 			if (mSerialPort == null) {
 				
 				 SharedPreferences pre = getSharedPreferences(CnfName, 0);
-			     String path = pre.getString("DEVICE", "/dev/ttyMT0");
+			     String path = pre.getString("DEVICE", "/dev/ttyMT1");
+			   //TODO平板是0，手机是1，切记切记
+			   //由于这个原因导致调试出错的请在下面加1
+			   //count : 2 
+			     
 			     System.out.println("path = " + path);
 			 
 				int baudrate2 = 115200;
