@@ -57,6 +57,7 @@ public class ReadCard {
 	 * @param开始读卡指令
 	 */
 	public void startRead() {
+		tagIdList.removeAll(tagIdList);//清空链表数据
 		isMyTurn=true;
 		sendSerialPort(Common.Statr_Inv);
 	}
@@ -221,7 +222,7 @@ public class ReadCard {
 				}
 				}
 				try {
-					Thread.sleep(200);
+					Thread.sleep(100);
 				} catch (Exception e) {
 
 				}

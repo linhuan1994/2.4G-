@@ -28,7 +28,8 @@ public class MainActivity extends Activity implements OnClickListener {
 		submitBn.setOnClickListener(this);
 		cleanBn.setOnClickListener(this);
 	    zokin=new Zokin(MainActivity.this);
-		
+		zokin.setCommand.SetStatus("");
+		zokin.setCommand.ReadStatus("");
 	}
 
 	@Override

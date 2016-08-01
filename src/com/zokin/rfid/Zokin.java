@@ -31,7 +31,8 @@ public class Zokin {
 		mApplication = (Application) activity.getApplication();
 		openSerialPort();
 		readCard = new ReadCard(mInputStream, mOutputStream);
-		setCommand = new SetCommand();
+		setCommand = new SetCommand(mInputStream, mOutputStream);
+		
 	}
 
 	public void endZokin() {
