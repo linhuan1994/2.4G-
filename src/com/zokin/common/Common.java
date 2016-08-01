@@ -16,10 +16,15 @@ public class Common {
 	final static public short TAG_EQU = 0x003E;
 	final static public short TAG_ADDRESS = 0x003F;
 
+	//   "设置成功";
 	final static public int REQ_STATUS_SUCCESS = 0;
+	//  "设置失败，参数长度错误";
 	final static public int REQ_STATUS_CMD_ERRORLEN = -1;
+	//  "设置失败，命令不支持";
 	final static public int REQ_STATUS_CMD_NOSPO = -2;
+	//  "设置失败，参数值错误";
 	final static public int REQ_STATUS_CMD_ERRORDATA = -3;
+	//  "设置失败，模块出错";
 	final static public int REQ_STATUS_CMD_MODULEERROR = -4;
 	
 	final static public byte[] Read_Power = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x01,
@@ -52,10 +57,10 @@ public class Common {
 	// final static static public byte[] Set_Address = new byte[]{(byte)0xFF ,0x00 ,0x00 , 0x02 ,
 	// 0x00 , 0x07 , 0x00 , (byte)0x3F , 0x00, 0x03 , 0x00 , 0x00 , 0x00 , 0x00
 	// , (byte)0xFE};
-    //开始接收指令
+    //开始接收卡号指令
 	final  static public byte[] Statr_Inv = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x02,
 			0x00, 0x05, 0x00, 0x20, 0x00, 0x01, 0x01, 0x27, (byte) 0xFE };
-	//停止接收指令
+	//停止接收卡号指令
 	final  static public byte[] Stop_Inv = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x02, 0x00,
 			0x05, 0x00, 0x20, 0x00, 0x01, 0x00, 0x26, (byte) 0xFE };
 }

@@ -11,10 +11,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.LinkedList;
 
-import android.util.Log;
-
 import com.zokin.common.BytesUtil;
 import com.zokin.common.Common;
+import com.zokin.common.LogInfo;
 
 public class ReadCard {
 
@@ -32,6 +31,7 @@ public class ReadCard {
 	private byte[] PcMsgPack = new byte[PackMaxSize];
 	private int SizeOfPcMsgPack = 0;
 	private LinkedList<String> tagIdList = new LinkedList<String>();
+	private boolean isMyTurn=false;
 	//private HashSet<String> dataSet = new HashSet<String>();
 	//private int dataNum = 0;// 卡数量
 
@@ -57,6 +57,7 @@ public class ReadCard {
 	 * @param开始读卡指令
 	 */
 	public void startRead() {
+		isMyTurn=true;
 		sendSerialPort(Common.Statr_Inv);
 	}
 
@@ -67,6 +68,7 @@ public class ReadCard {
 		sendSerialPort(Common.Stop_Inv);// Attention ：多发几个，防止接收不到
 		sendSerialPort(Common.Stop_Inv);
 		sendSerialPort(Common.Stop_Inv);
+		isMyTurn=false;
 	}
 
 	public boolean cleanCardId() {
@@ -76,7 +78,7 @@ public class ReadCard {
 	}
 
 	/*
-	 * 完成读卡、解析、并发送到handler，1000ms完成一次//TODO
+	 * 完成读卡、解析,200ms完成一次//TODO
 	 */
 	Thread ReadCard = new Thread(new Runnable() {
 
@@ -84,19 +86,21 @@ public class ReadCard {
 		public void run() {
 			while (true)// FLAG设置标志，结束时释放
 			{
+				if(isMyTurn)
+				{
 				byte[] BUFFER = new byte[8000];
 				int size = 0;
 
 				try {
 					if (mInputStream == null) {
-						Log.w("gxLin", "读卡线程mInputStream为NULL");
+						LogInfo.LogW("读卡线程mInputStream为NULL");
 						return;
 					}
 					else {
 					size = mInputStream.read(BUFFER);// 读取缓存区
 					if (Math.abs(inpt - outpt) + size >= 8000) {
 
-						Log.w("gxLin", "接收数据越界");
+						LogInfo.LogW("接收数据越界");
 					} else if (size > 0) {
 						for (int i = 0; i < size; i++) {
 							RecBuff[inpt] = BUFFER[i]; // 保存接收的数据
@@ -155,12 +159,12 @@ public class ReadCard {
 												|| (PcMsgPack[4] > 64))// 数据长度值不对
 										{
 											SizeOfPcMsgPack = 0;
-											System.out.println("F1长度值不对，扔了");
+											LogInfo.LogW("数据长度不对");
 										} else {
 											if ((PcMsgPack[4] + 6) != SizeOfPcMsgPack)// 数据长度不对,这个包可以扔了
 											{
 												SizeOfPcMsgPack = 0;
-												System.out.println("F1长度不对，扔了");
+												LogInfo.LogW("数据长度不对,这个包可以扔了");
 
 											} else// 长度对了
 											{
@@ -215,9 +219,9 @@ public class ReadCard {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-
+				}
 				try {
-					Thread.sleep(100);
+					Thread.sleep(200);
 				} catch (Exception e) {
 
 				}
