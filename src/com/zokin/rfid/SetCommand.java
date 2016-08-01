@@ -29,8 +29,6 @@ public class SetCommand {
 	private String sAddress2 = "00";
 	private String sAddress3 = "00";
 
-	private boolean imset = false;
-
 	private int SetStatus = 0;// 设置的状态
 	private int ReadStatus = 0;// 读取的状态
 	private String ReadAddress = "";
@@ -44,33 +42,89 @@ public class SetCommand {
 	 * 得到设置响应
 	 */
 
-	public int SetStatus(String str) {
+	public int SetStatus(String str, int choose) {
 
 		if (str.equals("Set_Power")) {
-			sendSerialPort(Common.Set_Power);
+			sendSerialPort(setData(str,Common.Set_Power, choose));
 		} else if (str.equals("Set_Speed")) {
-			sendSerialPort(Common.Set_Speed);
+			sendSerialPort(setData(str,Common.Set_Speed, choose));
 		} else if (str.equals("Set_FQ")) {
-			sendSerialPort(Common.Set_FQ);
+			sendSerialPort(setData(str,Common.Set_FQ, choose));
 		} else if (str.equals("Set_TO")) {
-			sendSerialPort(Common.Set_TO);
+			sendSerialPort(setData(str,Common.Set_TO, choose));
 		} else if (str.equals("Set_SJ")) {
-			sendSerialPort(Common.Set_SJ);
+			sendSerialPort(setData(str,Common.Set_SJ, choose));
 		} else if (str.equals("Set_EQU")) {
-			sendSerialPort(Common.Set_EQU);
+			//sendSerialPort(Common.Set_EQU);
 		} else if (str.equals("Set_Address")) {
-			sendSerialPort(Common.Set_Address);
+			//sendSerialPort(Common.Set_Address);
 		}
 
 		/* 开启线程TODO */
-		CommandThread.start();
+		new Thread(CommandThread).start();
+
+		try {
+			// 等待响应
+			Thread.sleep(50);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		return this.SetStatus;
+	}
+
+	/**
+	 * 设置参数
+	 */
+	private byte[] setData(String str, byte[] set, int choose) {
+
+		if (str.equals("Set_FQ")) {
+			switch (choose) {
+			case 0:
+				set[10] = (byte) 97;
+				break;
+			case 1:
+				set[10] = (byte) 94;
+				break;
+			case 2:
+				set[10] = (byte) 91;
+				break;
+			case 3:
+				set[10] = (byte) 88;
+				break;
+			case 4:
+				set[10] = (byte) 85;
+				break;
+			case 5:
+				set[10] = (byte) 82;
+				break;
+			case 6:
+				set[10] = (byte) 79;
+				break;
+			case 7:
+				set[10] = (byte) 76;
+				break;
+			default:
+				break;
+			}
+		} else {
+			set[10] = (byte) choose;
+		}
+
+		int aa = 0;
+		byte[] bb = new byte[10];
+		byte LRC;
+		for (aa = 0; aa < 10; aa++) {
+			bb[aa] = set[1 + aa];
+		}
+		LRC = BytesUtil.creatLRC(bb);
+		set[11] = LRC;
+		return set;
 	}
 
 	/**
 	 * 得到读取数据
 	 * 
-	 * @return
+	 * @return Object
 	 */
 	public Object ReadStatus(String str) {
 
@@ -91,8 +145,14 @@ public class SetCommand {
 		}
 
 		/* 开启线程TODO */
-		CommandThread.start();
+		new Thread(CommandThread).start();
 
+		try {
+			// 等待响应
+			Thread.sleep(50);
+		} catch (Exception e) {
+			// TODO: handle exception
+		}
 		// 由于地址与其他设置参数不同，所以要分开
 		if (str.equals("Read_Address"))
 			return this.ReadAddress;
@@ -252,41 +312,36 @@ public class SetCommand {
 	 */
 	private void Set_Rqe_Duil(byte[] data, int datalen) {
 		/* 检查Status */
-		if (imset == false) {
-			return;
-		} else {
-			imset = false;
-			LogInfo.LogI("返回结果:" + data[0]);
+		LogInfo.LogI("返回结果:" + data[0]);
 
-			switch (data[0]) {
-			case Common.REQ_STATUS_SUCCESS:
+		switch (data[0]) {
+		case Common.REQ_STATUS_SUCCESS:
 
-				SetStatus = Common.REQ_STATUS_SUCCESS;// 状态为读取成功
-				break;
-			case Common.REQ_STATUS_CMD_ERRORLEN:
-				// MsgToShow = "设置失败，参数长度错误";
-				SetStatus = Common.REQ_STATUS_CMD_ERRORLEN;
+			SetStatus = Common.REQ_STATUS_SUCCESS;// 状态为读取成功
+			break;
+		case Common.REQ_STATUS_CMD_ERRORLEN:
+			// MsgToShow = "设置失败，参数长度错误";
+			SetStatus = Common.REQ_STATUS_CMD_ERRORLEN;
 
-				break;
-			case Common.REQ_STATUS_CMD_NOSPO:
-				// MsgToShow = "设置失败，命令不支持";
-				SetStatus = Common.REQ_STATUS_CMD_NOSPO;
-				break;
-			case Common.REQ_STATUS_CMD_ERRORDATA:
-				// /MsgToShow = "设置失败，参数值错误";
-				SetStatus = Common.REQ_STATUS_CMD_ERRORDATA;
-				break;
-			case Common.REQ_STATUS_CMD_MODULEERROR:
-				// /MsgToShow = "设置失败，模块出错";
-				SetStatus = Common.REQ_STATUS_CMD_MODULEERROR;
-				break;
-			default:
-				break;
-			}
+			break;
+		case Common.REQ_STATUS_CMD_NOSPO:
+			// MsgToShow = "设置失败，命令不支持";
+			SetStatus = Common.REQ_STATUS_CMD_NOSPO;
+			break;
+		case Common.REQ_STATUS_CMD_ERRORDATA:
+			// /MsgToShow = "设置失败，参数值错误";
+			SetStatus = Common.REQ_STATUS_CMD_ERRORDATA;
+			break;
+		case Common.REQ_STATUS_CMD_MODULEERROR:
+			// /MsgToShow = "设置失败，模块出错";
+			SetStatus = Common.REQ_STATUS_CMD_MODULEERROR;
+			break;
+		default:
+			break;
 		}
+
 	}
 
-	// 123124
 	private void Read_Req_Duil(byte[] data, int datalen) {
 		/* 判断错误 */
 		int Status = data[0];
@@ -298,19 +353,19 @@ public class SetCommand {
 			switch (data[0]) {
 			case Common.REQ_STATUS_CMD_ERRORLEN:
 				// MsgToShow = "设置失败，参数长度错误";
-				ReadStatus = Common.REQ_STATUS_CMD_ERRORLEN;
+				this.ReadStatus = Common.REQ_STATUS_CMD_ERRORLEN;
 				break;
 			case Common.REQ_STATUS_CMD_NOSPO:
 				// MsgToShow = "设置失败，命令不支持";
-				ReadStatus = Common.REQ_STATUS_CMD_NOSPO;
+				this.ReadStatus = Common.REQ_STATUS_CMD_NOSPO;
 				break;
 			case Common.REQ_STATUS_CMD_ERRORDATA:
 				// /MsgToShow = "设置失败，参数值错误";
-				ReadStatus = Common.REQ_STATUS_CMD_ERRORDATA;
+				this.ReadStatus = Common.REQ_STATUS_CMD_ERRORDATA;
 				break;
 			case Common.REQ_STATUS_CMD_MODULEERROR:
 				// /MsgToShow = "设置失败，模块出错";
-				ReadStatus = Common.REQ_STATUS_CMD_MODULEERROR;
+				this.ReadStatus = Common.REQ_STATUS_CMD_MODULEERROR;
 				break;
 			default:
 				break;
@@ -340,7 +395,7 @@ public class SetCommand {
 		test[0] = data[7];
 		sAddress3 = BytesUtil.bytesToHexString(test);
 
-		ReadAddress = sAddress1 + " " + sAddress2 + " " + sAddress3;
+		this.ReadAddress = sAddress1 + " " + sAddress2 + " " + sAddress3;
 
 		LogInfo.LogI("读取到地址：" + ReadAddress);
 	}
@@ -376,7 +431,7 @@ public class SetCommand {
 			break;
 		}
 
-		ReadStatus = fq;
+		this.ReadStatus = fq;
 		LogInfo.LogI("读到的频率为：" + ReadStatus);
 	}
 
@@ -385,11 +440,11 @@ public class SetCommand {
 		switch (Tag) {
 		case Common.TAG_POWER:
 			/* 判断状态 */
-			ReadStatus = (int) data[5];
+			this.ReadStatus = (int) data[5];
 			LogInfo.LogI("读到的功率为：" + ReadStatus);
 			break;
 		case Common.TAG_SPEED:
-			ReadStatus = (int) data[5];
+			this.ReadStatus = (int) data[5];
 			LogInfo.LogI("读到的速率为：" + ReadStatus);
 			break;
 		case Common.TAG_FQ:
@@ -397,16 +452,16 @@ public class SetCommand {
 			break;
 		case Common.TAG_TO:
 
-			ReadStatus = (int) data[5] - 1;
+			this.ReadStatus = (int) data[5] - 1;
 			LogInfo.LogI("读到的时间间隔：" + ReadStatus);
 			break;
 		case Common.TAG_DECAY:
-			ReadStatus = (int) data[5];
+			this.ReadStatus = (int) data[5];
 			LogInfo.LogI("读到的衰减为：" + ReadStatus);
 
 			break;
 		case Common.TAG_EQU:
-			ReadStatus = (int) data[5];
+			this.ReadStatus = (int) data[5];
 			LogInfo.LogI("读到的设备类型为：" + ReadStatus);
 			break;
 		case Common.TAG_ADDRESS:
@@ -428,7 +483,7 @@ public class SetCommand {
 			mOutputStream.write(output);
 			try {
 				// 50ms等待回应
-				Thread.sleep(50);
+				Thread.sleep(20);
 			} catch (Exception e) {
 
 			}
