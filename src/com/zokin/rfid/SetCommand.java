@@ -3,60 +3,28 @@ package com.zokin.rfid;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.security.InvalidParameterException;
 
 import com.zokin.common.BytesUtil;
-
-import android.os.Message;
-import android.util.Log;
-import android.widget.Button;
-import android.widget.Spinner;
-import android_serialport_api.SerialPort;
+import com.zokin.common.Common;
+import com.zokin.common.LogInfo;
 
 public class SetCommand {
-	
-	protected SerialPort mSerialPort;
+
 	protected OutputStream mOutputStream;
 	private InputStream mInputStream;
 	private int BuffSize = 16000;
 	private byte[] RecBuff = new byte[BuffSize];
 	private int inpt = 0;
 	private int outpt = 0;
-	
-	final private int MSG_UPDATE_POWER = 0xFFFE;
-	final private int MSG_UPDATE_SPEED = 0xFFFD;
-	final private int MSG_UPDATE_FQ = 0xFFFC;
-	final private int MSG_UPDATE_TO = 0xFFFB;
-	final private int MSG_UPDATE_DECAY = 0xFFFA;
-	final private int MSG_UPDATE_EQUTYPE = 0xFFF9;
-	final private int MSG_UPDATE_ADDRESS = 0xFFF8;
-	final private int MSG_SHOW_Tisk = 0xFFB0;
-	
-	private int Rec_state= 100;
+
+	private int Rec_state = 100;
 	private int WAIT_STX = 100;
 	private int WAIT_ETX = 200;
 
 	private int PackMaxSize = 64;
 	private byte[] PcMsgPack = new byte[PackMaxSize];
-	private byte[] PcMsgData = new byte[PackMaxSize];
-
 	private int SizeOfPcMsgPack = 0;
-	private int SizeOfPcMsgData = 0;
-	
-	final private short TAG_POWER = 0x0001;
-	final private short TAG_SPEED = 0x0002;
-	final private short TAG_FQ = 0x0003;
-	final private short TAG_TO = 0x0014;
-	final private short TAG_DECAY = 0x0004;
-	final private short TAG_EQU = 0x003E;
-	final private short TAG_ADDRESS = 0x003F;
 
-	final private int REQ_STATUS_SUCCESS = 0;
-	final private int REQ_STATUS_CMD_ERRORLEN = -1;
-	final private int REQ_STATUS_CMD_NOSPO = -2;
-	final private int REQ_STATUS_CMD_ERRORDATA = -3;
-	final private int REQ_STATUS_CMD_MODULEERROR = -4;
-	
 	private byte[] Read_Power = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x01,
 			0x00, 0x02, 0x00, 0x01, 0x02, (byte) 0xFE };
 	private byte[] Read_Speed = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x01,
@@ -84,41 +52,82 @@ public class SetCommand {
 			0x05, 0x00, 0x04, 0x00, 0x01, 0x00, 0x00, (byte) 0xFE };
 	private byte[] Set_EQU = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x02, 0x00,
 			0x05, 0x00, (byte) 0x3E, 0x00, 0x01, 0x00, 0x00, (byte) 0xFE };
-	// private byte[] Set_Address = new byte[]{(byte)0xFF ,0x00 ,0x00 , 0x02 ,
-	// 0x00 , 0x07 , 0x00 , (byte)0x3F , 0x00, 0x03 , 0x00 , 0x00 , 0x00 , 0x00
-	// , (byte)0xFE};
+	private byte[] Set_Address = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x02,
+			0x00, 0x07, 0x00, (byte) 0x3F, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00,
+			(byte) 0xFE };
 
-	// private byte[] Statr_Inv = new byte[]{(byte)0xFF , 0x00 , 0x00 , 0x02 ,
-	// 0x00 , 0x05 , 0x00 , 0x20 , 0x00 , 0x01 , 0x01 , 0x27 , (byte)0xFE};
-	private byte[] Stop_Inv = new byte[] { (byte) 0xFF, 0x00, 0x00, 0x02, 0x00,
-			0x05, 0x00, 0x20, 0x00, 0x01, 0x00, 0x26, (byte) 0xFE };
-	
-	private int nPower_sel = 0;
-	private int nSpeed_sel = 0;
-	private int nFQ_sel = 0;
-	private int nTO_sel = 0;
-	private int nDecay_sel = 0;
-	private int nEquType_sel = 0;
+
 	private String sAddress1 = "00";
 	private String sAddress2 = "00";
 	private String sAddress3 = "00";
 
 	private boolean imset = false;
-	
-	private Spinner Spn_Power;
-	private Button Btn_Power_Read;
-	private Button Btn_Power_Set;
-	private long recnum2 = 0;
-	private long duilnum2 = 0;
-	private long buffnum2 = 0;
-	
-		
-	public SetCommand()
-	{
-		
+
+	private int SetStatus = 0;// 设置的状态
+	private int ReadStatus = 0;// 读取的状态
+	private String ReadAddress = "";
+
+	public SetCommand() {
+
 	}
+
+	/**
+	 * 得到设置状态
+	 */
+
+	public int SetStatus(String str) {
+
+		if (str.equals("Set_Power")) {
+			sendSerialPort(Common.Set_Power);
+		} else if (str.equals("Set_Speed")) {
+			sendSerialPort(Common.Set_Speed);
+		} else if (str.equals("Set_FQ")) {
+			sendSerialPort(Common.Set_FQ);
+		} else if (str.equals("Set_TO")) {
+			sendSerialPort(Common.Set_TO);
+		} else if (str.equals("Set_SJ")) {
+			sendSerialPort(Common.Set_SJ);
+		} else if (str.equals("Set_EQU")) {
+			sendSerialPort(Common.Set_EQU);
+		} else if (str.equals("Set_Address")) {
+			sendSerialPort(Set_Address);
+		}
+
+		/* 开启线程TODO */
+
+		return this.SetStatus;
+	}
+
+	/**
+	 * 得到读取数据
+	 * 
+	 * @return
+	 */
+	public int ReadStatus(String str) {
+
+		if (str.equals("Read_Power")) {
+			sendSerialPort(Common.Read_Power);
+		} else if (str.equals("Read_Speed")) {
+			sendSerialPort(Common.Read_Speed);
+		} else if (str.equals("Read_FQ")) {
+			sendSerialPort(Common.Read_FQ);
+		} else if (str.equals("Read_TO")) {
+			sendSerialPort(Common.Read_TO);
+		} else if (str.equals("Read_SJ")) {
+			sendSerialPort(Common.Read_SJ);
+		} else if (str.equals("Read_EQU")) {
+			sendSerialPort(Common.Read_EQU);
+		} else if (str.equals("Read_Address")) {
+			sendSerialPort(Common.Read_Address);
+		}
+
+		/* 开启线程TODO */
+
+		return this.ReadStatus;
+	}
+
 	/*
-	 * 完成取、解析、并发送到handler，1000ms完成一次//TODO
+	 * 完成取、解析//TODO
 	 */
 	Thread CommandThread = new Thread(new Runnable() {
 
@@ -128,16 +137,17 @@ public class SetCommand {
 			{
 				byte[] BUFFER = new byte[8000];
 				int size = 0;
-				outpt=0;
-				inpt=0;
+				outpt = 0;
+				inpt = 0;
 				try {
 					if (mInputStream == null) {
-						Log.w("gxLin","读卡线程mInputStream为NULL");
+
+						LogInfo.LogW("读卡线程mInputStream为NULL");
 						return;
 					}
 					size = mInputStream.read(BUFFER);
 					if (size >= 8000) {
-						Log.w("gxLin","接收数据越界>8000");
+						LogInfo.LogW("接收数据越界>8000");
 					} else if (size > 0) {
 						for (int i = 0; i < size; i++) {
 							RecBuff[inpt] = BUFFER[i]; // 保存接收的数据
@@ -148,7 +158,7 @@ public class SetCommand {
 						while (outpt < size) {
 							int CMD_Type = 0;
 							int Data_Len = 0;
-							
+
 							if (Rec_state == WAIT_STX)// 等待数据头状态
 							{
 								if (RecBuff[outpt] == (byte) 0xFF) {
@@ -156,8 +166,7 @@ public class SetCommand {
 									Rec_state = WAIT_ETX;
 									outpt++;
 									SizeOfPcMsgPack = 0;
-								}
-								else {
+								} else {
 									outpt++;
 								}
 							} else if (Rec_state == WAIT_ETX)// 等尾状态
@@ -218,7 +227,8 @@ public class SetCommand {
 													break;
 												case (byte) 0x81:
 													System.out.println("收到读响应");
-													Read_Req_Duil(Data, Data_Len);
+													Read_Req_Duil(Data,
+															Data_Len);
 													break;
 												case (byte) 0x82:
 													System.out.println("收到写响应");
@@ -252,9 +262,9 @@ public class SetCommand {
 					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
-				
+
 				try {
-					Thread.sleep(200);
+					Thread.sleep(100);
 				} catch (Exception e) {
 
 				}
@@ -262,49 +272,41 @@ public class SetCommand {
 		}
 	});
 
-	
-	void Set_Rqe_Duil(byte[] data, int datalen) {
+	/**
+	 * 设置的状态
+	 * 
+	 * @param data
+	 * @param datalen
+	 */
+	private void Set_Rqe_Duil(byte[] data, int datalen) {
 		/* 检查Status */
 		if (imset == false) {
 			return;
 		} else {
 			imset = false;
-			System.out.print("返回结果:" + data[0]);
+			LogInfo.LogI("返回结果:" + data[0]);
+
 			switch (data[0]) {
-			case REQ_STATUS_SUCCESS:
-				Message msg1 = new Message();
-				msg1 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.setsuccess));
-				myHandler.sendMessage(msg1);
+			case Common.REQ_STATUS_SUCCESS:
+
+				SetStatus = Common.REQ_STATUS_SUCCESS;// 状态为读取成功
 				break;
-			case REQ_STATUS_CMD_ERRORLEN:
+			case Common.REQ_STATUS_CMD_ERRORLEN:
 				// MsgToShow = "设置失败，参数长度错误";
-				Message msg2 = new Message();
-				
-				msg2 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.setfaildatalen));
-				myHandler.sendMessage(msg2);
+				SetStatus = Common.REQ_STATUS_CMD_ERRORLEN;
+
 				break;
-			case REQ_STATUS_CMD_NOSPO:
+			case Common.REQ_STATUS_CMD_NOSPO:
 				// MsgToShow = "设置失败，命令不支持";
-				Message msg3 = new Message();
-				msg3 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.setfailnosupp));
-				myHandler.sendMessage(msg3);
+				SetStatus = Common.REQ_STATUS_CMD_NOSPO;
 				break;
-			case REQ_STATUS_CMD_ERRORDATA:
+			case Common.REQ_STATUS_CMD_ERRORDATA:
 				// /MsgToShow = "设置失败，参数值错误";
-				Message msg4 = new Message();
-				msg4 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.setfaildata));
-				myHandler.sendMessage(msg4);
+				SetStatus = Common.REQ_STATUS_CMD_ERRORDATA;
 				break;
-			case REQ_STATUS_CMD_MODULEERROR:
+			case Common.REQ_STATUS_CMD_MODULEERROR:
 				// /MsgToShow = "设置失败，模块出错";
-				Message msg5 = new Message();
-				msg5 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.setfailmodule));
-				myHandler.sendMessage(msg5);
+				SetStatus = Common.REQ_STATUS_CMD_MODULEERROR;
 				break;
 			default:
 				break;
@@ -313,7 +315,7 @@ public class SetCommand {
 	}
 
 	// 123124
-	void Read_Req_Duil(byte[] data, int datalen) {
+	private void Read_Req_Duil(byte[] data, int datalen) {
 		/* 判断错误 */
 		int Status = data[0];
 
@@ -322,33 +324,21 @@ public class SetCommand {
 		if (Status != 0) {
 			/* 检查Status */
 			switch (data[0]) {
-			case REQ_STATUS_CMD_ERRORLEN:
+			case Common.REQ_STATUS_CMD_ERRORLEN:
 				// MsgToShow = "设置失败，参数长度错误";
-				Message msg2 = new Message();
-				msg2 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.readfaildatalen));
-				myHandler.sendMessage(msg2);
+				ReadStatus = Common.REQ_STATUS_CMD_ERRORLEN;
 				break;
-			case REQ_STATUS_CMD_NOSPO:
+			case Common.REQ_STATUS_CMD_NOSPO:
 				// MsgToShow = "设置失败，命令不支持";
-				Message msg3 = new Message();
-				msg3 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.readfailnosupp));
-				myHandler.sendMessage(msg3);
+				ReadStatus = Common.REQ_STATUS_CMD_NOSPO;
 				break;
-			case REQ_STATUS_CMD_ERRORDATA:
+			case Common.REQ_STATUS_CMD_ERRORDATA:
 				// /MsgToShow = "设置失败，参数值错误";
-				Message msg4 = new Message();
-				msg4 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.readfaildata));
-				myHandler.sendMessage(msg4);
+				ReadStatus = Common.REQ_STATUS_CMD_ERRORDATA;
 				break;
-			case REQ_STATUS_CMD_MODULEERROR:
+			case Common.REQ_STATUS_CMD_MODULEERROR:
 				// /MsgToShow = "设置失败，模块出错";
-				Message msg5 = new Message();
-				msg5 = myHandler.obtainMessage(MSG_SHOW_Tisk,
-						getString(R.string.readfailmodule));
-				myHandler.sendMessage(msg5);
+				ReadStatus = Common.REQ_STATUS_CMD_MODULEERROR;
 				break;
 			default:
 				break;
@@ -362,37 +352,14 @@ public class SetCommand {
 			} else {
 				Tag = (short) ((short) (data[1] << 8) + (short) (data[2]));
 			}
-			switch (Tag) {
-			case TAG_POWER:
-				/* 判断状态 */
-				Read_Power_Req(datalen, data);
-				break;
-			case TAG_SPEED:
-				Read_Speed_Req(datalen, data);
-				break;
-			case TAG_FQ:
-				Read_FQ_Req(datalen, data);
-				break;
-			case TAG_TO:
-				Read_TO_Req(datalen, data);
-				break;
-			case TAG_DECAY:
-				Read_Decay_Req(datalen, data);
-				break;
-			case TAG_EQU:
-				Read_EquType_Req(datalen, data);
-				break;
-			case TAG_ADDRESS:
-				Read_Address_Req(datalen, data);
-				break;
-			default:
-				break;
-			}
-			
+
+			readStatus(Tag, data);
+
 		}
 
 	}
-	void Read_Address_Req(int datalen, byte[] data) {
+
+	private void Read_Address_Req(byte[] data) {
 		byte[] test = new byte[1];
 		test[0] = data[5];
 		sAddress1 = BytesUtil.bytesToHexString(test);
@@ -401,53 +368,12 @@ public class SetCommand {
 		test[0] = data[7];
 		sAddress3 = BytesUtil.bytesToHexString(test);
 
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_ADDRESS);
-		myHandler.sendMessage(msg);
+		ReadAddress = sAddress1 + " " + sAddress2 + " " + sAddress3;
+
+		LogInfo.LogI("读取到地址：" + ReadAddress);
 	}
 
-	void Read_Decay_Req(int datalen, byte[] data) {
-		System.out.println("读到的衰减为：" + data[5]);
-		int power = (int) data[5];
-		System.out.println("@" + power);
-		nDecay_sel = power;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_DECAY);
-		myHandler.sendMessage(msg);
-	}
-
-	void Read_EquType_Req(int datalen, byte[] data) {
-		System.out.println("读到的设备类型为：" + data[5]);
-		int power = (int) data[5];
-		System.out.println("@" + power);
-		nEquType_sel = power;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_EQUTYPE);
-		myHandler.sendMessage(msg);
-	}
-
-	void Read_Power_Req(int datalen, byte[] data) {
-		System.out.println("读到的功率为：" + data[5]);
-		int power = (int) data[5];
-		System.out.println("@" + power);
-		nPower_sel = power;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_POWER);
-		myHandler.sendMessage(msg);
-	}
-
-	void Read_Speed_Req(int datalen, byte[] data) {
-		System.out.println("读到的速率为：" + data[5]);
-		int speed = (int) data[5];
-		System.out.println("@" + speed);
-		nSpeed_sel = speed;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_SPEED);
-		myHandler.sendMessage(msg);
-	}
-
-	void Read_FQ_Req(int datalen, byte[] data) {
-		System.out.println("读到的频率为：" + data[5]);
+	private void Read_FQ_Req(byte[] data) {
 		int fq = 0;
 		switch (data[5]) {
 		case (byte) 0x61:
@@ -478,24 +404,48 @@ public class SetCommand {
 			break;
 		}
 
-		nFQ_sel = fq;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_FQ);
-		myHandler.sendMessage(msg);
+		ReadStatus = fq;
+		LogInfo.LogI("读到的频率为：" + ReadStatus);
 	}
 
-	void Read_TO_Req(int datalen, byte[] data) {
-		System.out.println("读到的时间间隔：" + data[5]);
-		int to = (int) data[5];
-		System.out.println("@" + to);
-		to = to - 1;
-		nTO_sel = to;
-		Message msg = new Message();
-		msg = myHandler.obtainMessage(MSG_UPDATE_TO);
-		myHandler.sendMessage(msg);
+	/* 判断状态 */
+	private void readStatus(short Tag, byte[] data) {
+		switch (Tag) {
+		case Common.TAG_POWER:
+			/* 判断状态 */
+			ReadStatus = (int) data[5];
+			LogInfo.LogI("读到的功率为：" + ReadStatus);
+			break;
+		case Common.TAG_SPEED:
+			ReadStatus = (int) data[5];
+			LogInfo.LogI("读到的速率为：" + ReadStatus);
+			break;
+		case Common.TAG_FQ:
+			Read_FQ_Req(data);
+			break;
+		case Common.TAG_TO:
+
+			ReadStatus = (int) data[5] - 1;
+			LogInfo.LogI("读到的时间间隔：" + ReadStatus);
+			break;
+		case Common.TAG_DECAY:
+			ReadStatus = (int) data[5];
+			LogInfo.LogI("读到的衰减为：" + ReadStatus);
+
+			break;
+		case Common.TAG_EQU:
+			ReadStatus = (int) data[5];
+			LogInfo.LogI("读到的设备类型为：" + ReadStatus);
+			break;
+		case Common.TAG_ADDRESS:
+			Read_Address_Req(data);
+			break;
+		default:
+			break;
+		}
+
 	}
-	
-	
+
 	/**********************************************************************/
 	/** sendSerialPort **/
 	/** 串口发数据 **/
@@ -504,7 +454,7 @@ public class SetCommand {
 	protected void sendSerialPort(byte[] output) {
 		try {
 			mOutputStream.write(output);
-			Log.i("gxLin","发送串口数据");
+			LogInfo.LogI("发送串口数据");
 		} catch (Exception e) {
 		}
 	}
