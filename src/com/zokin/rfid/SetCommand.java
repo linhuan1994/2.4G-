@@ -452,7 +452,7 @@ public class SetCommand {
 			break;
 		case Common.TAG_TO:
 
-			this.ReadStatus = (int) data[5] - 1;
+			this.ReadStatus = (int) data[5];
 			LogInfo.LogI("读到的时间间隔：" + ReadStatus);
 			break;
 		case Common.TAG_DECAY:

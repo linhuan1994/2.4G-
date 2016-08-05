@@ -42,7 +42,7 @@ public class MainActivity extends Activity implements OnClickListener {
 		submitBn.setOnClickListener(this);
 		cleanBn.setOnClickListener(this);
 	    zokin=new Zokin(MainActivity.this);
-		
+	    
 	}
 
 	@Override
@@ -78,5 +78,9 @@ public class MainActivity extends Activity implements OnClickListener {
 	}
 		
 	}
-
+   protected void onDestroy()
+   {
+	   super.onDestroy();
+	   zokin.endZokin();
+   }
 }
